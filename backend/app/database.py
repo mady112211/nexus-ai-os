@@ -227,6 +227,15 @@ def init_db():
                     is_enabled=False,
                     config={"store_url": "", "api_key": ""}
                 ),
+                Plugin(
+    name="Weather",
+    slug="weather",
+    description="Get real-time weather data for any city",
+    category="research",
+    icon="🌤️",
+    is_enabled=True,
+    config={"default_city": "Karachi"}
+),
             ]
             db.add_all(plugins)
             db.commit()

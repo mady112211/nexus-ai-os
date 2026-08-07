@@ -120,6 +120,7 @@ export const settingsAPI = {
 
   getStats: () => apiCall('/api/settings/stats'),
 };
+
 export const pluginAPI = {
   getAll: () => apiCall('/api/plugins/'),
 
@@ -140,4 +141,38 @@ export const pluginAPI = {
     }),
 
   getEnabled: () => apiCall('/api/plugins/enabled'),
+};
+
+export const toolsAPI = {
+  search: (query: string) =>
+    apiCall('/api/tools/search', {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    }),
+
+  quickSearch: (query: string) =>
+    apiCall('/api/tools/search/quick', {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    }),
+
+  listFiles: () => apiCall('/api/tools/files'),
+
+  writeFile: (filename: string, content: string) =>
+    apiCall('/api/tools/files', {
+      method: 'POST',
+      body: JSON.stringify({ filename, content }),
+    }),
+
+  readFile: (filename: string) => apiCall(`/api/tools/files/${filename}`),
+
+  deleteFile: (filename: string) =>
+    apiCall(`/api/tools/files/${filename}`, {
+      method: 'DELETE',
+    }),
+    getWeather: (city: string) =>
+  apiCall(`/api/tools/weather?city=${encodeURIComponent(city)}`),
+
+getWeatherForecast: (city: string, days = 3) =>
+  apiCall(`/api/tools/weather/forecast?city=${encodeURIComponent(city)}&days=${days}`),
 };

@@ -16,6 +16,7 @@ from app.api.memory import memory_bp
 from app.api.chat import chat_bp
 from app.api.settings import settings_bp
 from app.api.plugins import plugins_bp
+from app.api.plugin_tools import plugin_tools_bp
 from app.database import init_db
 
 def create_app():
@@ -34,12 +35,13 @@ def create_app():
     app.register_blueprint(chat_bp, url_prefix="/api/chat")
     app.register_blueprint(settings_bp, url_prefix="/api/settings")
     app.register_blueprint(plugins_bp, url_prefix="/api/plugins")
+    app.register_blueprint(plugin_tools_bp, url_prefix="/api/tools")
 
     @app.route("/")
     def home():
         return jsonify({
             "name": "NEXUS AI OS",
-            "version": "0.6.0",
+            "version": "0.6.1",
             "status": "Running",
             "message": "One Command. Infinite Execution.",
         })
@@ -48,7 +50,7 @@ def create_app():
     def health():
         return jsonify({
             "status": "healthy",
-            "version": "0.6.0"
+            "version": "0.6.1"
         })
 
     return app
@@ -57,6 +59,6 @@ if __name__ == "__main__":
     init_db()
     print("✅ Database initialized!")
     app = create_app()
-    print("🚀 NEXUS AI OS v0.6.0 Starting...")
+    print("🚀 NEXUS AI OS v0.6.1 Starting...")
     print("📍 URL: http://localhost:5000")
     app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
