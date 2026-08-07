@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+backend/venv/
+backend/.venv/
+backend/*.db
+backend/nexus.db
+*.db
+
+# Node
+frontend/node_modules/
+node_modules/
+frontend/.next/
+.next/
+frontend/.env.local
+.env.local
+
+# Environment
+backend/.env
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Large files
+*.node

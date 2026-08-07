@@ -1,0 +1,60 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from flask import Flask, jsonify
+from flask_cors import CORS
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from app.api.auth import auth_bp
+from app.api.missions import missions_bp
+from app.api.agents import agents_bp
+from app.api.dashboard import dashboard_bp
+from app.api.memory import memory_bp
+from app.api.chat import chat_bp
+from app.api.settings import settings_bp
+from app.database import init_db
+
+def create_app():
+    app = Flask(__name__)
+
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "nexus-secret-2024")
+    app.config["DEBUG"] = False
+
+    CORS(app, origins=["http://localhost:3000"])
+
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    app.register_blueprint(missions_bp, url_prefix="/api/missions")
+    app.register_blueprint(agents_bp, url_prefix="/api/agents")
+    app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
+    app.register_blueprint(memory_bp, url_prefix="/api/memory")
+    app.register_blueprint(chat_bp, url_prefix="/api/chat")
+    app.register_blueprint(settings_bp, url_prefix="/api/settings")
+
+    @app.route("/")
+    def home():
+        return jsonify({
+            "name": "NEXUS AI OS",
+            "version": "0.5.0",
+            "status": "Running",
+            "message": "One Command. Infinite Execution.",
+        })
+
+    @app.route("/health")
+    def health():
+        return jsonify({
+            "status": "healthy",
+            "version": "0.5.0"
+        })
+
+    return app
+
+if __name__ == "__main__":
+    init_db()
+    print("✅ Database initialized!")
+    app = create_app()
+    print("🚀 NEXUS AI OS v0.5.0 Starting...")
+    print("📍 URL: http://localhost:5000")
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
