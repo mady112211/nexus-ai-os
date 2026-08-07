@@ -120,3 +120,24 @@ export const settingsAPI = {
 
   getStats: () => apiCall('/api/settings/stats'),
 };
+export const pluginAPI = {
+  getAll: () => apiCall('/api/plugins/'),
+
+  getByCategory: () => apiCall('/api/plugins/?by_category=true'),
+
+  getOne: (slug: string) => apiCall(`/api/plugins/${slug}`),
+
+  toggle: (slug: string, enabled: boolean) =>
+    apiCall(`/api/plugins/${slug}/toggle`, {
+      method: 'POST',
+      body: JSON.stringify({ enabled }),
+    }),
+
+  updateConfig: (slug: string, config: Record<string, string>) =>
+    apiCall(`/api/plugins/${slug}/config`, {
+      method: 'PUT',
+      body: JSON.stringify({ config }),
+    }),
+
+  getEnabled: () => apiCall('/api/plugins/enabled'),
+};

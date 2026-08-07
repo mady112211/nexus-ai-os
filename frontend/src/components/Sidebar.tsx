@@ -8,6 +8,7 @@ const navItems = [
   { label: 'Command Center', path: '/chat', icon: '💬' },
   { label: 'Missions', path: '/missions', icon: '🎯' },
   { label: 'Agents', path: '/agents', icon: '🤖' },
+  { label: 'Plugins', path: '/plugins', icon: '🔌' },
   { label: 'Memory', path: '/memory', icon: '🧠' },
   { label: 'Settings', path: '/settings', icon: '⚙️' },
 ];
@@ -30,7 +31,7 @@ export default function Sidebar() {
           </div>
           <div>
             <div className="font-bold text-sm">NEXUS AI OS</div>
-            <div className="text-xs text-gray-500">v0.5.0</div>
+            <div className="text-xs text-gray-500">v0.6.0</div>
           </div>
         </div>
       </div>

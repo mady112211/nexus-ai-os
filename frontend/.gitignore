@@ -30,3 +30,7 @@ Thumbs.db
 
 # Large files
 *.node
+backend/.env
+backend/nexus.db
+backend/__pycache__/
+backend/**/__pycache__/
