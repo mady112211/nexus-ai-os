@@ -170,9 +170,34 @@ export const toolsAPI = {
     apiCall(`/api/tools/files/${filename}`, {
       method: 'DELETE',
     }),
-    getWeather: (city: string) =>
-  apiCall(`/api/tools/weather?city=${encodeURIComponent(city)}`),
 
-getWeatherForecast: (city: string, days = 3) =>
-  apiCall(`/api/tools/weather/forecast?city=${encodeURIComponent(city)}&days=${days}`),
+  getWeather: (city: string) =>
+    apiCall(`/api/tools/weather?city=${encodeURIComponent(city)}`),
+
+  getWeatherForecast: (city: string, days = 3) =>
+    apiCall(
+      `/api/tools/weather/forecast?city=${encodeURIComponent(city)}&days=${days}`
+    ),
+};
+
+export const notificationAPI = {
+  getAll: (unreadOnly = false) =>
+    apiCall(`/api/notifications/?unread_only=${unreadOnly}`),
+
+  getUnreadCount: () => apiCall('/api/notifications/unread-count'),
+
+  markRead: (id: number) =>
+    apiCall(`/api/notifications/${id}/read`, {
+      method: 'POST',
+    }),
+
+  markAllRead: () =>
+    apiCall('/api/notifications/mark-all-read', {
+      method: 'POST',
+    }),
+
+  delete: (id: number) =>
+    apiCall(`/api/notifications/${id}`, {
+      method: 'DELETE',
+    }),
 };
