@@ -9,6 +9,7 @@ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -22,6 +23,7 @@ class User(Base):
 
     missions = relationship("Mission", back_populates="user")
     memories = relationship("Memory", back_populates="user")
+
 
 class Mission(Base):
     __tablename__ = "missions"
@@ -38,6 +40,7 @@ class Mission(Base):
     user = relationship("User", back_populates="missions")
     tasks = relationship("Task", back_populates="mission")
 
+
 class Task(Base):
     __tablename__ = "tasks"
 
@@ -53,6 +56,7 @@ class Task(Base):
 
     mission = relationship("Mission", back_populates="tasks")
 
+
 class Memory(Base):
     __tablename__ = "memories"
 
@@ -65,6 +69,7 @@ class Memory(Base):
 
     user = relationship("User", back_populates="memories")
 
+
 class Agent(Base):
     __tablename__ = "agents"
 
@@ -74,6 +79,7 @@ class Agent(Base):
     description = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
 
 class Plugin(Base):
     __tablename__ = "plugins"
@@ -90,6 +96,7 @@ class Plugin(Base):
     config = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+
 def get_db():
     db = SessionLocal()
     try:
@@ -97,26 +104,71 @@ def get_db():
     finally:
         db.close()
 
+
 def init_db():
     Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
     try:
-        # Default agents
+        # ============ 10 SPECIALIZED AGENTS ============
         if db.query(Agent).count() == 0:
             agents = [
-                Agent(name="Nova Research", role="Research Agent",
-                      description="Specializes in market research and data analysis"),
-                Agent(name="Nova Developer", role="Developer Agent",
-                      description="Expert in coding, APIs and technical solutions"),
-                Agent(name="Nova Content", role="Content Agent",
-                      description="Creates marketing content and strategies"),
+                Agent(
+                    name="Nova Research",
+                    role="Research Agent",
+                    description="Market research, data analysis, and competitor intelligence"
+                ),
+                Agent(
+                    name="Nova Developer",
+                    role="Developer Agent",
+                    description="Coding, APIs, technical architecture, and debugging"
+                ),
+                Agent(
+                    name="Nova Content",
+                    role="Content Agent",
+                    description="Content creation, copywriting, and social media strategy"
+                ),
+                Agent(
+                    name="Nova Designer",
+                    role="Designer Agent",
+                    description="UI/UX design, branding, and visual concepts"
+                ),
+                Agent(
+                    name="Nova Marketing",
+                    role="Marketing Agent",
+                    description="Marketing campaigns, SEO, and growth strategies"
+                ),
+                Agent(
+                    name="Nova Analyst",
+                    role="Data Analyst Agent",
+                    description="Data analysis, insights, and business intelligence"
+                ),
+                Agent(
+                    name="Nova Strategist",
+                    role="Strategy Agent",
+                    description="Business strategy, planning, and decision making"
+                ),
+                Agent(
+                    name="Nova QA",
+                    role="QA Agent",
+                    description="Quality assurance, testing, and validation"
+                ),
+                Agent(
+                    name="Nova Finance",
+                    role="Finance Agent",
+                    description="Financial planning, budgeting, and ROI analysis"
+                ),
+                Agent(
+                    name="Nova Support",
+                    role="Support Agent",
+                    description="Customer support, documentation, and user guidance"
+                ),
             ]
             db.add_all(agents)
             db.commit()
-            print("✅ Default agents created!")
+            print("✅ 10 Specialized agents created!")
 
-        # Default plugins
+        # ============ DEFAULT PLUGINS ============
         if db.query(Plugin).count() == 0:
             plugins = [
                 Plugin(
@@ -136,6 +188,15 @@ def init_db():
                     icon="📁",
                     is_enabled=True,
                     config={}
+                ),
+                Plugin(
+                    name="Weather",
+                    slug="weather",
+                    description="Get real-time weather data for any city",
+                    category="research",
+                    icon="🌤️",
+                    is_enabled=True,
+                    config={"default_city": "Karachi"}
                 ),
                 Plugin(
                     name="GitHub",
@@ -227,15 +288,6 @@ def init_db():
                     is_enabled=False,
                     config={"store_url": "", "api_key": ""}
                 ),
-                Plugin(
-    name="Weather",
-    slug="weather",
-    description="Get real-time weather data for any city",
-    category="research",
-    icon="🌤️",
-    is_enabled=True,
-    config={"default_city": "Karachi"}
-),
             ]
             db.add_all(plugins)
             db.commit()
