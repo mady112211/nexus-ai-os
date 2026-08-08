@@ -39,7 +39,7 @@ class Mission(Base):
 
     user = relationship("User", back_populates="missions")
     tasks = relationship("Task", back_populates="mission")
-
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True)
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -106,6 +106,37 @@ class Notification(Base):
     icon = Column(String(10), default="🔔")
     is_read = Column(Boolean, default=False)
     action_url = Column(String(500), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+class Workspace(Base):
+    __tablename__ = "workspaces"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text, nullable=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    icon = Column(String(10), default="🏢")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class WorkspaceMember(Base):
+    __tablename__ = "workspace_members"
+
+    id = Column(Integer, primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    role = Column(String(20), default="member")
+    joined_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Invitation(Base):
+    __tablename__ = "invitations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"))
+    email = Column(String(255), nullable=False)
+    role = Column(String(20), default="member")
+    invited_by = Column(Integer, ForeignKey("users.id"))
+    status = Column(String(20), default="pending")
     created_at = Column(DateTime, default=datetime.utcnow)
 
 def get_db():

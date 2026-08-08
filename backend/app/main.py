@@ -20,6 +20,8 @@ from app.api.plugin_tools import plugin_tools_bp
 from app.api.notifications import notifications_bp
 from app.api.analytics import analytics_bp
 from app.database import init_db
+from app.api.workspaces import workspaces_bp
+from app.api.self_mod import self_mod_bp
 
 def create_app():
     app = Flask(__name__)
@@ -39,6 +41,8 @@ def create_app():
     app.register_blueprint(plugin_tools_bp, url_prefix="/api/tools")
     app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
     app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
+    app.register_blueprint(workspaces_bp, url_prefix="/api/workspaces")
+    app.register_blueprint(self_mod_bp, url_prefix="/api/self-mod")
 
     @app.route("/")
     def home():
@@ -62,3 +66,4 @@ if __name__ == "__main__":
     print("🚀 NEXUS AI OS v0.9.0 Starting...")
     print("📍 URL: http://localhost:5000")
     app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
+    

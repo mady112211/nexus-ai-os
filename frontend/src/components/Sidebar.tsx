@@ -8,12 +8,14 @@ import ThemeToggle from './ThemeToggle';
 const navItems = [
   { label: 'Dashboard', path: '/dashboard', icon: '🏠' },
   { label: 'Command Center', path: '/chat', icon: '💬' },
+  { label: 'Workspaces', path: '/workspaces', icon: '🏢' },
   { label: 'Missions', path: '/missions', icon: '🎯' },
   { label: 'Agents', path: '/agents', icon: '🤖' },
   { label: 'Plugins', path: '/plugins', icon: '🔌' },
   { label: 'Tools', path: '/tools', icon: '🛠️' },
   { label: 'Memory', path: '/memory', icon: '🧠' },
   { label: 'Analytics', path: '/analytics', icon: '📊' },
+  { label: 'Self-Mod', path: '/self-mod', icon: '🧬' },
   { label: 'Settings', path: '/settings', icon: '⚙️' },
 ];
 

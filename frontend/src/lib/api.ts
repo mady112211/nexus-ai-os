@@ -205,3 +205,65 @@ export const analyticsAPI = {
   getOverview: () => apiCall('/api/analytics/overview'),
   getTimeline: () => apiCall('/api/analytics/timeline'),
 };
+export const workspaceAPI = {
+  getAll: () => apiCall('/api/workspaces/'),
+
+  create: (name: string, description: string, icon: string) =>
+    apiCall('/api/workspaces/', {
+      method: 'POST',
+      body: JSON.stringify({ name, description, icon }),
+    }),
+
+  getOne: (id: number) => apiCall(`/api/workspaces/${id}`),
+
+  invite: (id: number, email: string, role: string) =>
+    apiCall(`/api/workspaces/${id}/invite`, {
+      method: 'POST',
+      body: JSON.stringify({ email, role }),
+    }),
+
+  removeMember: (workspaceId: number, userId: number) =>
+    apiCall(`/api/workspaces/${workspaceId}/members/${userId}`, {
+      method: 'DELETE',
+    }),
+
+  delete: (id: number) =>
+    apiCall(`/api/workspaces/${id}`, {
+      method: 'DELETE',
+    }),
+};
+export const selfModAPI = {
+  getStructure: () => apiCall('/api/self-mod/structure'),
+
+  readFile: (path: string) =>
+    apiCall('/api/self-mod/read', {
+      method: 'POST',
+      body: JSON.stringify({ path }),
+    }),
+
+  planChange: (request: string) =>
+    apiCall('/api/self-mod/plan', {
+      method: 'POST',
+      body: JSON.stringify({ request }),
+    }),
+
+  generateCode: (request: string, target_file: string) =>
+    apiCall('/api/self-mod/generate', {
+      method: 'POST',
+      body: JSON.stringify({ request, target_file }),
+    }),
+
+  applyChange: (target_file: string, new_code: string) =>
+    apiCall('/api/self-mod/apply', {
+      method: 'POST',
+      body: JSON.stringify({ target_file, new_code }),
+    }),
+
+  getBackups: () => apiCall('/api/self-mod/backups'),
+
+  searchCode: (query: string) =>
+    apiCall('/api/self-mod/search', {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    }),
+};
