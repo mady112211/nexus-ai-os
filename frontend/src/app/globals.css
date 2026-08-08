@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
+/* ============ DARK MODE (Default) ============ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --bg-primary: #030712;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1f2937;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --border: #1f2937;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #030712;
+  color: #ffffff;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ============ LIGHT MODE ============ */
+html.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
+}
+
+html.light body {
+  background: #f9fafb !important;
+  color: #111827 !important;
+}
+
+/* Backgrounds */
+html.light .bg-gray-950 {
+  background: #f9fafb !important;
+}
+
+html.light .bg-gray-900 {
+  background: #ffffff !important;
+}
+
+html.light .bg-gray-800 {
+  background: #f3f4f6 !important;
+}
+
+html.light .bg-gray-700 {
+  background: #e5e7eb !important;
+}
+
+/* Borders */
+html.light .border-gray-800 {
+  border-color: #e5e7eb !important;
+}
+
+html.light .border-gray-700 {
+  border-color: #d1d5db !important;
+}
+
+/* Text Colors */
+html.light .text-white {
+  color: #111827 !important;
+}
+
+html.light .text-gray-300 {
+  color: #374151 !important;
+}
+
+html.light .text-gray-400 {
+  color: #4b5563 !important;
+}
+
+html.light .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+html.light .text-gray-600 {
+  color: #9ca3af !important;
+}
+
+/* Inputs */
+html.light input,
+html.light textarea,
+html.light select {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-color: #d1d5db !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 4px;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
 }

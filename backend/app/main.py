@@ -17,11 +17,12 @@ from app.api.chat import chat_bp
 from app.api.settings import settings_bp
 from app.api.plugins import plugins_bp
 from app.api.plugin_tools import plugin_tools_bp
+from app.api.notifications import notifications_bp
+from app.api.analytics import analytics_bp
 from app.database import init_db
 
 def create_app():
     app = Flask(__name__)
-
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "nexus-secret-2024")
     app.config["DEBUG"] = False
 
@@ -36,22 +37,21 @@ def create_app():
     app.register_blueprint(settings_bp, url_prefix="/api/settings")
     app.register_blueprint(plugins_bp, url_prefix="/api/plugins")
     app.register_blueprint(plugin_tools_bp, url_prefix="/api/tools")
+    app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
+    app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
 
     @app.route("/")
     def home():
         return jsonify({
             "name": "NEXUS AI OS",
-            "version": "0.6.1",
+            "version": "0.9.0",
             "status": "Running",
             "message": "One Command. Infinite Execution.",
         })
 
     @app.route("/health")
     def health():
-        return jsonify({
-            "status": "healthy",
-            "version": "0.6.1"
-        })
+        return jsonify({"status": "healthy", "version": "0.9.0"})
 
     return app
 
@@ -59,6 +59,6 @@ if __name__ == "__main__":
     init_db()
     print("✅ Database initialized!")
     app = create_app()
-    print("🚀 NEXUS AI OS v0.6.1 Starting...")
+    print("🚀 NEXUS AI OS v0.9.0 Starting...")
     print("📍 URL: http://localhost:5000")
     app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)

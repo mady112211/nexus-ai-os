@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { removeToken } from '@/lib/api';
 import NotificationBell from './NotificationBell';
+import ThemeToggle from './ThemeToggle';
 
 const navItems = [
   { label: 'Dashboard', path: '/dashboard', icon: '🏠' },
@@ -12,6 +13,7 @@ const navItems = [
   { label: 'Plugins', path: '/plugins', icon: '🔌' },
   { label: 'Tools', path: '/tools', icon: '🛠️' },
   { label: 'Memory', path: '/memory', icon: '🧠' },
+  { label: 'Analytics', path: '/analytics', icon: '📊' },
   { label: 'Settings', path: '/settings', icon: '⚙️' },
 ];
 
@@ -27,16 +29,19 @@ export default function Sidebar() {
   return (
     <div className="w-64 bg-gray-900 border-r border-gray-800 min-h-screen flex flex-col">
       <div className="p-6 border-b border-gray-800">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm text-white">
               N
             </div>
             <div>
-              <div className="font-bold text-sm">NEXUS AI OS</div>
-              <div className="text-xs text-gray-500">v0.9.0</div>
+              <div className="font-bold text-sm text-white">NEXUS AI OS</div>
+              <div className="text-xs text-gray-500">v1.0.0</div>
             </div>
           </div>
+        </div>
+        <div className="flex items-center justify-end gap-1">
+          <ThemeToggle />
           <NotificationBell />
         </div>
       </div>

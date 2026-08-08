@@ -2,16 +2,17 @@ from app.database import SessionLocal, Mission, Task
 from ai_core.gateway import call_ai_sync
 from ai_core.memory.memory_manager import MemoryManager
 from ai_core.agents.tool_executor import ToolExecutor
+from ai_core.agents.agent_personas import get_agent_persona
+from ai_core.notifications import NotificationManager
 
 class WorkflowEngine:
-    """Executes mission tasks using AI + Real Tools"""
+    """Executes mission tasks with notifications"""
 
     def __init__(self, mission_id: int):
         self.mission_id = mission_id
         self.db = SessionLocal()
 
     def start(self):
-        """Start executing the mission"""
         print(f"\n🚀 Starting Mission #{self.mission_id}")
 
         mission = self.db.query(Mission).filter(
@@ -19,8 +20,17 @@ class WorkflowEngine:
         ).first()
 
         if not mission:
-            print("❌ Mission not found")
             return None
+
+        # Notify: Mission started
+        NotificationManager.create(
+            user_id=mission.user_id,
+            title=f"Mission Started",
+            message=f"'{mission.title}' is now being executed",
+            notification_type="info",
+            icon="🚀",
+            action_url=f"/missions/{mission.id}"
+        )
 
         mission.status = "running"
         mission.progress = 0
@@ -32,12 +42,10 @@ class WorkflowEngine:
 
         total_tasks = len(tasks)
         if total_tasks == 0:
-            print("❌ No tasks found")
             return None
 
         print(f"📋 {total_tasks} tasks to execute")
 
-        # Get available tools
         available_tools = ToolExecutor.get_available_tools()
         print(f"🔧 Available tools: {[t['name'] for t in available_tools]}")
 
@@ -50,8 +58,7 @@ class WorkflowEngine:
             task.status = "running"
             self.db.commit()
 
-            # Execute task with AI + Tools
-            result = self._execute_task_with_tools(
+            result = self._execute_task_with_specialist(
                 task, mission.goal, available_tools
             )
 
@@ -61,6 +68,7 @@ class WorkflowEngine:
 
             results.append({
                 "task": task.task_name,
+                "agent": task.assigned_agent,
                 "result": result
             })
 
@@ -78,7 +86,6 @@ class WorkflowEngine:
         mission.result = final_report
         self.db.commit()
 
-        # Save to memory
         try:
             MemoryManager.save_project_memory(
                 user_id=mission.user_id,
@@ -91,66 +98,60 @@ class WorkflowEngine:
         except Exception as e:
             print(f"❌ Memory save failed: {str(e)}")
 
+        # Notify: Mission completed
+        NotificationManager.create(
+            user_id=mission.user_id,
+            title=f"Mission Completed! 🎉",
+            message=f"'{mission.title}' finished successfully with {total_tasks} tasks",
+            notification_type="success",
+            icon="✅",
+            action_url=f"/missions/{mission.id}"
+        )
+
         print(f"\n🎉 Mission #{self.mission_id} COMPLETED!")
 
         self.db.close()
         return final_report
 
-    def _execute_task_with_tools(self, task, goal: str, available_tools: list) -> str:
-        """Execute task with AI that can use tools"""
+    def _execute_task_with_specialist(self, task, goal: str, available_tools: list) -> str:
+        agent_persona = get_agent_persona(task.assigned_agent)
 
         tools_description = ""
         if available_tools:
-            tools_description = "\n\nAvailable Tools (use when needed):\n"
+            tools_description = "\n\nAvailable Tools:\n"
             for tool in available_tools:
                 tools_description += f"- {tool['name']}: {tool['description']}\n"
                 tools_description += f"  Usage: [{tool['usage']}]\n"
-            tools_description += "\nTo use a tool, write: [TOOL: tool_name(param=\"value\")]\n"
-            tools_description += "Example: [TOOL: web_search(query=\"AI trends 2024\")]\n"
+            tools_description += "\nTo use a tool: [TOOL: tool_name(param=\"value\")]\n"
 
-        system_prompt = f"""You are {task.assigned_agent} working on NEXUS AI OS.
-You are an expert AI agent with access to real tools.
-Give detailed, professional, actionable results.
+        system_prompt = f"""{agent_persona}
 {tools_description}
-Use tools when you need real data. After using a tool, analyze the results."""
+Use tools when you need real data."""
 
         prompt = f"""Mission Goal: {goal}
 
 Your Task: {task.task_name}
-Task Description: {task.description or task.task_name}
+Description: {task.description or task.task_name}
 
-Execute this task professionally. Use available tools to get real data when needed.
-Provide detailed, actionable results."""
+Execute using your expertise. Be detailed and actionable."""
 
         try:
-            # First AI call - may include tool calls
             ai_response = call_ai_sync(prompt, system_prompt)
-
-            # Parse and execute any tool calls
             processed_response, tool_results = ToolExecutor.parse_and_execute(ai_response)
 
-            # If tools were used, get AI to analyze results
             if tool_results:
                 print(f"   🔧 {len(tool_results)} tools used")
 
-                tool_summary = "\n\nTool Results:\n"
+                tool_summary = "\n\nReal Data:\n"
                 for tr in tool_results:
                     tool_summary += f"\n[{tr['tool']}]: {tr['result'][:300]}\n"
 
                 analysis_prompt = f"""Task: {task.task_name}
+Data received: {tool_summary}
+As {task.assigned_agent}, analyze and provide expert insights."""
 
-You used these tools and got these results:
-{tool_summary}
-
-Now provide a comprehensive analysis and actionable recommendations based on these real results.
-Be specific and professional."""
-
-                final_response = call_ai_sync(
-                    analysis_prompt,
-                    f"You are {task.assigned_agent}. Analyze the tool results and provide expert insights."
-                )
-
-                return f"{processed_response}\n\n## Analysis\n{final_response}"
+                final_response = call_ai_sync(analysis_prompt, agent_persona)
+                return f"{processed_response}\n\n## Expert Analysis\n{final_response}"
 
             return processed_response
 
@@ -159,24 +160,22 @@ Be specific and professional."""
             return f"Task completed: {task.task_name}"
 
     def _generate_report(self, goal: str, results: list) -> str:
-        """Generate final mission report"""
-
         results_text = ""
         for r in results:
-            results_text += f"\n## {r['task']}\n{r['result'][:300]}\n"
+            results_text += f"\n### {r['task']} (by {r['agent']})\n{r['result'][:250]}\n"
 
-        prompt = f"""Create a professional executive summary.
+        prompt = f"""Create executive summary combining all agent insights.
 
-Mission Goal: {goal}
+Goal: {goal}
 
-Completed Tasks:
+Contributions:
 {results_text}
 
-Write a 2-3 paragraph summary of what was accomplished and key findings."""
+Write 3-4 paragraph summary: accomplishments, key findings, recommendations, next steps."""
 
-        system = "You are NEXUS AI OS. Generate a concise, professional mission report."
+        system = "You are NEXUS Master Coordinator. Generate professional comprehensive report."
 
         try:
             return call_ai_sync(prompt, system)
         except Exception:
-            return f"Mission completed: {goal}. All {len(results)} tasks executed successfully."
+            return f"Mission completed: {goal}. {len(results)} specialists contributed."

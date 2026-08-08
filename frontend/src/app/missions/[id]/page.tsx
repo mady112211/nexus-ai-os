@@ -41,6 +41,7 @@ export default function MissionDetailPage() {
 
   useEffect(() => {
     const token = getToken();
+
     if (!token) {
       router.push('/');
       return;
@@ -50,8 +51,6 @@ export default function MissionDetailPage() {
       router.push('/missions');
       return;
     }
-
-    let interval: NodeJS.Timeout;
 
     const loadData = async () => {
       try {
@@ -71,7 +70,7 @@ export default function MissionDetailPage() {
 
     loadData();
 
-    interval = setInterval(() => {
+    const interval = setInterval(() => {
       loadData();
     }, 3000);
 
@@ -84,6 +83,7 @@ export default function MissionDetailPage() {
     try {
       setExecuting(true);
       await missionAPI.execute(missionId);
+
       const updated = await fetchMission(missionId);
       setMission(updated);
     } catch (error) {
@@ -99,6 +99,7 @@ export default function MissionDetailPage() {
       completed: 'bg-green-500/20 text-green-400 border-green-800',
       failed: 'bg-red-500/20 text-red-400 border-red-800',
     };
+
     return colors[status] || 'bg-gray-500/20 text-gray-400 border-gray-700';
   };
 
@@ -109,10 +110,12 @@ export default function MissionDetailPage() {
       completed: '✅',
       failed: '❌',
     };
+
     return icons[status] || '⏳';
   };
 
-  const completedTasks = mission?.tasks.filter((t) => t.status === 'completed').length || 0;
+  const completedTasks =
+    mission?.tasks.filter((task) => task.status === 'completed').length || 0;
 
   return (
     <div className="flex min-h-screen bg-gray-950">
@@ -231,7 +234,9 @@ export default function MissionDetailPage() {
                     >
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <div>
-                          <div className="text-xs text-gray-500 mb-1">Task #{index + 1}</div>
+                          <div className="text-xs text-gray-500 mb-1">
+                            Task #{index + 1}
+                          </div>
                           <h3 className="font-medium">
                             {statusIcon(task.status)} {task.task_name}
                           </h3>
@@ -245,12 +250,16 @@ export default function MissionDetailPage() {
                       </div>
 
                       {task.description && (
-                        <div className="text-sm text-gray-400 mb-2">{task.description}</div>
+                        <div className="text-sm text-gray-400 mb-2">
+                          {task.description}
+                        </div>
                       )}
 
                       <div className="text-sm text-gray-400 mb-2">
                         <span className="text-gray-500">Agent:</span>{' '}
-                        <span className="text-blue-400">{task.assigned_agent || 'Not assigned'}</span>
+                        <span className="text-blue-400">
+                          {task.assigned_agent || 'Not assigned'}
+                        </span>
                       </div>
 
                       <div className="text-sm text-gray-400">

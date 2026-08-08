@@ -201,3 +201,7 @@ export const notificationAPI = {
       method: 'DELETE',
     }),
 };
+export const analyticsAPI = {
+  getOverview: () => apiCall('/api/analytics/overview'),
+  getTimeline: () => apiCall('/api/analytics/timeline'),
+};

@@ -29,12 +29,11 @@ export default function MissionsPage() {
 
   useEffect(() => {
     const token = getToken();
+
     if (!token) {
       router.push('/');
       return;
     }
-
-    let interval: NodeJS.Timeout;
 
     const loadData = async () => {
       try {
@@ -47,13 +46,15 @@ export default function MissionsPage() {
     };
 
     loadData();
-    interval = setInterval(loadData, 4000);
+
+    const interval = setInterval(loadData, 4000);
 
     return () => clearInterval(interval);
   }, [router]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!form.goal) return;
 
     setCreating(true);
@@ -80,18 +81,21 @@ export default function MissionsPage() {
       completed: 'bg-green-500/20 text-green-400 border-green-800',
       failed: 'bg-red-500/20 text-red-400 border-red-800',
     };
+
     return colors[status] || 'bg-gray-500/20 text-gray-400 border-gray-800';
   };
 
   return (
     <div className="flex min-h-screen bg-gray-950">
       <Sidebar />
+
       <main className="flex-1 p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold">Missions</h1>
             <p className="text-gray-400 mt-1">Create and manage AI missions</p>
           </div>
+
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -142,6 +146,7 @@ export default function MissionsPage() {
                 >
                   {creating ? 'Creating...' : 'Create Mission'}
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}

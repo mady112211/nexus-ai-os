@@ -95,7 +95,18 @@ class Plugin(Base):
     is_installed = Column(Boolean, default=True)
     config = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+class Notification(Base):
+    __tablename__ = "notifications"
 
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    title = Column(String(255), nullable=False)
+    message = Column(Text, nullable=True)
+    notification_type = Column(String(50), default="info")
+    icon = Column(String(10), default="🔔")
+    is_read = Column(Boolean, default=False)
+    action_url = Column(String(500), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 def get_db():
     db = SessionLocal()
