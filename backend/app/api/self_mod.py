@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from app.auth.jwt_handler import decode_token
 from ai_core.self_mod.code_analyzer import CodeAnalyzer
 from ai_core.self_mod.code_modifier import CodeModifier
+from ai_core.self_mod.smart_modifier import SmartModifier
 from ai_core.self_mod.backup_manager import BackupManager
 
 self_mod_bp = Blueprint("self_mod", __name__)
@@ -13,7 +14,6 @@ def get_structure():
     payload = decode_token(token)
     if not payload:
         return jsonify({"error": "Unauthorized"}), 401
-
     structure = CodeAnalyzer.get_project_structure()
     return jsonify({"structure": structure})
 
@@ -24,7 +24,6 @@ def read_file():
     payload = decode_token(token)
     if not payload:
         return jsonify({"error": "Unauthorized"}), 401
-
     data = request.get_json()
     path = data.get("path", "")
     result = CodeAnalyzer.read_file(path)
@@ -33,6 +32,7 @@ def read_file():
 
 @self_mod_bp.route("/plan", methods=["POST"])
 def plan_change():
+    """Smart planning"""
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     payload = decode_token(token)
     if not payload:
@@ -44,12 +44,14 @@ def plan_change():
     if not request_text:
         return jsonify({"error": "Request is required"}), 400
 
-    result = CodeModifier.plan_modification(request_text)
+    # Use smart planner
+    result = SmartModifier.smart_plan(request_text)
     return jsonify(result)
 
 
 @self_mod_bp.route("/generate", methods=["POST"])
 def generate_code():
+    """Smart code generation with context and validation"""
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     payload = decode_token(token)
     if not payload:
@@ -62,12 +64,14 @@ def generate_code():
     if not request_text or not target_file:
         return jsonify({"error": "Request and target_file required"}), 400
 
-    result = CodeModifier.generate_code(request_text, target_file)
+    # Use smart generator
+    result = SmartModifier.smart_generate(request_text, target_file)
     return jsonify(result)
 
 
 @self_mod_bp.route("/apply", methods=["POST"])
 def apply_change():
+    """Apply with validation"""
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     payload = decode_token(token)
     if not payload:
@@ -76,11 +80,13 @@ def apply_change():
     data = request.get_json()
     target_file = data.get("target_file", "").strip()
     new_code = data.get("new_code", "")
+    force = data.get("force", False)
 
     if not target_file or not new_code:
         return jsonify({"error": "Missing data"}), 400
 
-    result = CodeModifier.apply_change(target_file, new_code)
+    # Use smart applier
+    result = SmartModifier.smart_apply(target_file, new_code, skip_validation=force)
     return jsonify(result)
 
 
@@ -90,9 +96,27 @@ def list_backups():
     payload = decode_token(token)
     if not payload:
         return jsonify({"error": "Unauthorized"}), 401
-
     backups = BackupManager.list_backups()
     return jsonify({"backups": backups})
+
+
+@self_mod_bp.route("/restore", methods=["POST"])
+def restore_backup():
+    """Restore from backup"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    payload = decode_token(token)
+    if not payload:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    backup_name = data.get("backup_name", "")
+    target_path = data.get("target_path", "")
+
+    if not backup_name or not target_path:
+        return jsonify({"error": "Missing data"}), 400
+
+    result = BackupManager.restore_backup(backup_name, target_path)
+    return jsonify(result)
 
 
 @self_mod_bp.route("/search", methods=["POST"])

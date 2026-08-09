@@ -11,7 +11,14 @@ interface Plan {
   change_type: string;
   risk_level: string;
   description: string;
-  estimated_changes: string;
+  reasoning?: string;
+}
+
+interface Validation {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  line_count: number;
 }
 
 interface GeneratedCode {
@@ -20,12 +27,15 @@ interface GeneratedCode {
   new_code: string;
   lines_before: number;
   lines_after: number;
+  validation?: Validation;
+  has_warnings?: boolean;
+  comparison_warnings?: string[];
 }
 
 export default function SelfModPage() {
   const router = useRouter();
   const [request, setRequest] = useState('');
-  const [step, setStep] = useState<'input' | 'plan' | 'generate' | 'preview'>('input');
+  const [step, setStep] = useState<'input' | 'plan' | 'preview'>('input');
   const [plan, setPlan] = useState<Plan | null>(null);
   const [selectedFile, setSelectedFile] = useState('');
   const [generated, setGenerated] = useState<GeneratedCode | null>(null);
@@ -34,25 +44,24 @@ export default function SelfModPage() {
 
   useEffect(() => {
     const token = getToken();
-    if (!token) {
-      router.push('/');
-    }
+    if (!token) router.push('/');
   }, [router]);
 
   const handlePlan = async () => {
     if (!request.trim()) return;
     setLoading(true);
-    setMessage('');
+    setMessage('🧠 Smart planning in progress...');
     try {
       const result = await selfModAPI.planChange(request);
       if (result.success && result.plan) {
         setPlan(result.plan);
         setStep('plan');
+        setMessage('');
       } else {
-        setMessage('Could not create plan');
+        setMessage('❌ Could not create plan');
       }
     } catch {
-      setMessage('Failed to plan');
+      setMessage('❌ Failed to plan');
     } finally {
       setLoading(false);
     }
@@ -61,37 +70,49 @@ export default function SelfModPage() {
   const handleGenerate = async (file: string) => {
     setSelectedFile(file);
     setLoading(true);
-    setMessage('');
+    setMessage('🧠 Reading context and generating perfect code... (may take 30s)');
     try {
       const result = await selfModAPI.generateCode(request, file);
       if (result.success) {
         setGenerated(result);
         setStep('preview');
+        if (result.has_warnings) {
+          setMessage('⚠️ Code generated with warnings - review carefully');
+        } else {
+          setMessage('✅ Code validated and ready');
+        }
       } else {
-        setMessage('Could not generate code');
+        setMessage(`❌ ${result.error}`);
       }
     } catch {
-      setMessage('Generation failed');
+      setMessage('❌ Generation failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApply = async () => {
+  const handleApply = async (force = false) => {
     if (!generated) return;
-    if (!confirm(`Apply changes to ${generated.file}?`)) return;
+    const msg = force
+      ? `FORCE apply to ${generated.file}? (skips validation)`
+      : `Apply changes to ${generated.file}?`;
+    if (!confirm(msg)) return;
 
     setLoading(true);
     try {
-      const result = await selfModAPI.applyChange(generated.file, generated.new_code);
+      const result = await selfModAPI.applyChange(
+        generated.file,
+        generated.new_code,
+        force
+      );
       if (result.success) {
-        setMessage(`Change applied! Backup: ${result.backup}`);
+        setMessage(`✅ Applied! Backup: ${result.backup}`);
         setTimeout(() => reset(), 3000);
       } else {
-        setMessage(result.error || 'Failed');
+        setMessage(`❌ ${result.error}`);
       }
     } catch {
-      setMessage('Failed to apply');
+      setMessage('❌ Failed to apply');
     } finally {
       setLoading(false);
     }
@@ -119,18 +140,18 @@ export default function SelfModPage() {
       <main className="flex-1 p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            🧬 Self-Modification System
+            🧬 Smart Self-Modification
           </h1>
           <p className="text-gray-400 mt-1">
-            NEXUS can modify its own code — with your approval
+            Context-aware code modification with auto-validation
           </p>
         </div>
 
-        <div className="bg-yellow-900/20 border border-yellow-800 rounded-xl p-4 mb-6">
+        <div className="bg-blue-900/20 border border-blue-800 rounded-xl p-4 mb-6">
           <div className="flex items-start gap-3">
-            <div className="text-2xl">⚠️</div>
-            <div className="text-sm text-yellow-200">
-              <strong>Safety First:</strong> All changes require your approval. Auto-backups created before every modification.
+            <div className="text-2xl">🧠</div>
+            <div className="text-sm text-blue-200">
+              <strong>Smart Mode:</strong> AI reads related files, follows patterns, validates code, and auto-retries on errors.
             </div>
           </div>
         </div>
@@ -149,9 +170,9 @@ export default function SelfModPage() {
               value={request}
               onChange={(e) => setRequest(e.target.value)}
               placeholder="Examples:
-- Change sidebar color to purple
-- Add welcome message on dashboard
-- Change login page title"
+- Change dashboard heading text to 'NEXUS Control'
+- Add a purple color to sidebar
+- Change login page welcome message"
               rows={6}
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none text-sm"
             />
@@ -161,7 +182,7 @@ export default function SelfModPage() {
               disabled={loading || !request.trim()}
               className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white px-6 py-3 rounded-lg text-sm font-medium"
             >
-              {loading ? 'Planning...' : 'Plan Modification'}
+              {loading ? '🧠 Planning...' : '🚀 Smart Plan'}
             </button>
           </div>
         )}
@@ -170,7 +191,7 @@ export default function SelfModPage() {
           <div className="space-y-6">
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold">Modification Plan</h2>
+                <h2 className="font-semibold">📋 Smart Plan</h2>
                 <span className={`text-xs px-3 py-1 rounded-full ${riskColor(plan.risk_level)}`}>
                   {plan.risk_level.toUpperCase()} RISK
                 </span>
@@ -187,10 +208,12 @@ export default function SelfModPage() {
                   <div className="text-gray-200">{plan.description}</div>
                 </div>
 
-                <div>
-                  <div className="text-gray-500 mb-1">Change Type:</div>
-                  <div className="text-blue-400 uppercase">{plan.change_type}</div>
-                </div>
+                {plan.reasoning && (
+                  <div>
+                    <div className="text-gray-500 mb-1">Reasoning:</div>
+                    <div className="text-gray-300 italic">{plan.reasoning}</div>
+                  </div>
+                )}
 
                 <div>
                   <div className="text-gray-500 mb-2">Target Files:</div>
@@ -206,7 +229,7 @@ export default function SelfModPage() {
                           disabled={loading}
                           className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded"
                         >
-                          {loading && selectedFile === file ? '...' : 'Generate Code'}
+                          {loading && selectedFile === file ? '🧠 Reading context...' : '⚡ Smart Generate'}
                         </button>
                       </div>
                     ))}
@@ -226,14 +249,58 @@ export default function SelfModPage() {
 
         {step === 'preview' && generated && (
           <div className="space-y-6">
+            {/* Validation Status */}
+            {generated.validation && (
+              <div
+                className={`border rounded-xl p-4 ${
+                  generated.validation.valid
+                    ? 'bg-green-900/20 border-green-800'
+                    : 'bg-red-900/20 border-red-800'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl">
+                    {generated.validation.valid ? '✅' : '⚠️'}
+                  </div>
+                  <div className="text-sm">
+                    <div className="font-semibold mb-1">
+                      {generated.validation.valid
+                        ? 'Code Validated Successfully'
+                        : 'Validation Warnings'}
+                    </div>
+                    {generated.validation.errors.length > 0 && (
+                      <div className="text-red-300 mt-2">
+                        <div className="font-medium mb-1">Errors:</div>
+                        <ul className="list-disc list-inside">
+                          {generated.validation.errors.map((e, i) => (
+                            <li key={i}>{e}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {generated.validation.warnings.length > 0 && (
+                      <div className="text-yellow-300 mt-2">
+                        <div className="font-medium mb-1">Warnings:</div>
+                        <ul className="list-disc list-inside">
+                          {generated.validation.warnings.map((w, i) => (
+                            <li key={i}>{w}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="font-semibold">Code Preview</h2>
+                  <h2 className="font-semibold">👁️ Code Preview</h2>
                   <code className="text-xs text-blue-400">{generated.file}</code>
                 </div>
                 <div className="text-xs text-gray-400">
-                  {generated.lines_before} to {generated.lines_after} lines
+                  {generated.lines_before} → {generated.lines_after} lines
                 </div>
               </div>
 
@@ -245,12 +312,22 @@ export default function SelfModPage() {
 
               <div className="flex gap-3 mt-4">
                 <button
-                  onClick={handleApply}
-                  disabled={loading}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white px-6 py-2 rounded-lg text-sm font-medium"
+                  onClick={() => handleApply(false)}
+                  disabled={loading || (generated.validation && !generated.validation.valid)}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 text-white px-6 py-2 rounded-lg text-sm font-medium"
                 >
-                  {loading ? 'Applying...' : 'Apply Change'}
+                  {loading ? 'Applying...' : '✅ Apply Change'}
                 </button>
+
+                {generated.validation && !generated.validation.valid && (
+                  <button
+                    onClick={() => handleApply(true)}
+                    disabled={loading}
+                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-sm font-medium"
+                  >
+                    ⚠️ Force Apply
+                  </button>
+                )}
 
                 <button
                   onClick={() => setStep('plan')}

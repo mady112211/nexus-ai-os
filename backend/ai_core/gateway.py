@@ -8,10 +8,21 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 FREE_MODELS = [
+    # Top tier - Best quality
+    "openrouter/free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "openai/gpt-oss-20b:free",
+    
+    # Middle tier - Good quality
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "cohere/north-mini-code:free",
+    
+    # Reliable fallback - Fast
     "google/gemma-4-26b-a4b-it:free",
     "google/gemma-4-31b-it:free",
+    
+    # Last resort
     "inclusionai/ling-3.0-tiny:free",
-    "poolside/laguna-s-2.1:free",
 ]
 
 def call_ai_sync(prompt: str, system: str = "") -> str:
@@ -25,7 +36,7 @@ def call_ai_sync(prompt: str, system: str = "") -> str:
         try:
             print(f"🤖 Trying model: {model_name}")
 
-            with httpx.Client(timeout=40) as client:
+            with httpx.Client(timeout=60) as client:
                 response = client.post(
                     f"{OPENROUTER_BASE_URL}/chat/completions",
                     headers={
@@ -46,8 +57,8 @@ def call_ai_sync(prompt: str, system: str = "") -> str:
                                 "content": prompt
                             }
                         ],
-                        "max_tokens": 1000,
-                        "temperature": 0.7,
+                        "max_tokens": 4000,
+                        "temperature": 0.3,
                     }
                 )
 
@@ -56,7 +67,7 @@ def call_ai_sync(prompt: str, system: str = "") -> str:
                 if response.status_code == 200:
                     data = response.json()
                     content = data["choices"][0]["message"]["content"]
-                    print("✅ AI response received!")
+                    print(f"✅ AI response from: {model_name}")
                     return content
                 else:
                     print(f"❌ Error: {response.text[:150]}")

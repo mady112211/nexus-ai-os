@@ -44,7 +44,7 @@ export default function LoginPage() {
             <span className="text-2xl font-bold">N</span>
           </div>
           <h1 className="text-3xl font-bold text-white">NEXUS AI OS</h1>
-          <p className="text-gray-400 mt-1">AI Operating System</p>
+          <p className="text-gray-400 mt-1">One Command. Infinite Execution.</p>
         </div>
 
         {/* Card */}

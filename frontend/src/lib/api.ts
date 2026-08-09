@@ -201,10 +201,12 @@ export const notificationAPI = {
       method: 'DELETE',
     }),
 };
+
 export const analyticsAPI = {
   getOverview: () => apiCall('/api/analytics/overview'),
   getTimeline: () => apiCall('/api/analytics/timeline'),
 };
+
 export const workspaceAPI = {
   getAll: () => apiCall('/api/workspaces/'),
 
@@ -232,6 +234,7 @@ export const workspaceAPI = {
       method: 'DELETE',
     }),
 };
+
 export const selfModAPI = {
   getStructure: () => apiCall('/api/self-mod/structure'),
 
@@ -253,13 +256,19 @@ export const selfModAPI = {
       body: JSON.stringify({ request, target_file }),
     }),
 
-  applyChange: (target_file: string, new_code: string) =>
+  applyChange: (target_file: string, new_code: string, force = false) =>
     apiCall('/api/self-mod/apply', {
       method: 'POST',
-      body: JSON.stringify({ target_file, new_code }),
+      body: JSON.stringify({ target_file, new_code, force }),
     }),
 
   getBackups: () => apiCall('/api/self-mod/backups'),
+
+  restoreBackup: (backup_name: string, target_path: string) =>
+    apiCall('/api/self-mod/restore', {
+      method: 'POST',
+      body: JSON.stringify({ backup_name, target_path }),
+    }),
 
   searchCode: (query: string) =>
     apiCall('/api/self-mod/search', {
