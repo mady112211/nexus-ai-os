@@ -246,3 +246,19 @@ export const selfModAPI = {
       body: JSON.stringify({ request }),
     }),
 };
+
+export const imageAIAPI = {
+  generate: (prompt: string, style: string) =>
+    apiCall('/api/image-ai/generate', {
+      method: 'POST',
+      body: JSON.stringify({ prompt, style }),
+    }),
+
+  getStyles: () => apiCall('/api/image-ai/styles'),
+
+  enhancePrompt: (prompt: string) =>
+    apiCall('/api/image-ai/enhance-prompt', {
+      method: 'POST',
+      body: JSON.stringify({ prompt }),
+    }),
+};

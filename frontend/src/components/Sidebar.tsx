@@ -19,6 +19,7 @@ const navItems = [
   { label: 'Auto Upgrade', path: '/auto-upgrade', icon: '🧬' },
   { label: 'Builder', path: '/builder', icon: '🏗️' },
   { label: 'Settings', path: '/settings', icon: '⚙️' },
+  { label: 'Image AI', path: '/image-studio', icon: '🎨' },
 ];
 
 export default function Sidebar() {
