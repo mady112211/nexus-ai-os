@@ -5,6 +5,7 @@ from ai_core.self_mod.code_modifier import CodeModifier
 from ai_core.self_mod.smart_modifier import SmartModifier
 from ai_core.self_mod.backup_manager import BackupManager
 from ai_core.self_mod.auto_upgrader import AutoUpgrader
+from ai_core.self_mod.builder import NexusBuilder
 
 self_mod_bp = Blueprint("self_mod", __name__)
 
@@ -33,7 +34,6 @@ def read_file():
 
 @self_mod_bp.route("/plan", methods=["POST"])
 def plan_change():
-    """Smart planning"""
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     payload = decode_token(token)
     if not payload:
@@ -45,14 +45,12 @@ def plan_change():
     if not request_text:
         return jsonify({"error": "Request is required"}), 400
 
-    # Use smart planner
     result = SmartModifier.smart_plan(request_text)
     return jsonify(result)
 
 
 @self_mod_bp.route("/generate", methods=["POST"])
 def generate_code():
-    """Smart code generation with context and validation"""
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     payload = decode_token(token)
     if not payload:
@@ -65,14 +63,12 @@ def generate_code():
     if not request_text or not target_file:
         return jsonify({"error": "Request and target_file required"}), 400
 
-    # Use smart generator
     result = SmartModifier.smart_generate(request_text, target_file)
     return jsonify(result)
 
 
 @self_mod_bp.route("/apply", methods=["POST"])
 def apply_change():
-    """Apply with validation"""
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     payload = decode_token(token)
     if not payload:
@@ -86,7 +82,6 @@ def apply_change():
     if not target_file or not new_code:
         return jsonify({"error": "Missing data"}), 400
 
-    # Use smart applier
     result = SmartModifier.smart_apply(target_file, new_code, skip_validation=force)
     return jsonify(result)
 
@@ -103,7 +98,6 @@ def list_backups():
 
 @self_mod_bp.route("/restore", methods=["POST"])
 def restore_backup():
-    """Restore from backup"""
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     payload = decode_token(token)
     if not payload:
@@ -135,8 +129,6 @@ def search_code():
 
     results = CodeAnalyzer.search_code(query)
     return jsonify({"results": results})
-
-    from ai_core.self_mod.auto_upgrader import AutoUpgrader
 
 
 @self_mod_bp.route("/scan", methods=["GET"])
@@ -172,4 +164,41 @@ def quick_wins():
         return jsonify({"error": "Unauthorized"}), 401
 
     result = AutoUpgrader.get_quick_wins()
+    return jsonify(result)
+    from ai_core.self_mod.builder import NexusBuilder
+
+
+@self_mod_bp.route("/builder/understand", methods=["POST"])
+def builder_understand():
+    """Understand user's build request"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    payload = decode_token(token)
+    if not payload:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    user_request = data.get("request", "").strip()
+
+    if not user_request:
+        return jsonify({"error": "Request required"}), 400
+
+    result = NexusBuilder.understand_request(user_request)
+    return jsonify(result)
+
+
+@self_mod_bp.route("/builder/build", methods=["POST"])
+def builder_build():
+    """Build entire feature autonomously"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    payload = decode_token(token)
+    if not payload:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    user_request = data.get("request", "").strip()
+
+    if not user_request:
+        return jsonify({"error": "Request required"}), 400
+
+    result = NexusBuilder.build_feature(user_request)
     return jsonify(result)
