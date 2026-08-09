@@ -15,7 +15,8 @@ const navItems = [
   { label: 'Tools', path: '/tools', icon: '🛠️' },
   { label: 'Memory', path: '/memory', icon: '🧠' },
   { label: 'Analytics', path: '/analytics', icon: '📊' },
-  { label: 'Self-Mod', path: '/self-mod', icon: '🧬' },
+  { label: 'Self-Mod', path: '/self-mod', icon: '✏️' },
+  { label: 'Auto Upgrade', path: '/auto-upgrade', icon: '🧬' },
   { label: 'Settings', path: '/settings', icon: '⚙️' },
 ];
 

@@ -4,6 +4,7 @@ from ai_core.self_mod.code_analyzer import CodeAnalyzer
 from ai_core.self_mod.code_modifier import CodeModifier
 from ai_core.self_mod.smart_modifier import SmartModifier
 from ai_core.self_mod.backup_manager import BackupManager
+from ai_core.self_mod.auto_upgrader import AutoUpgrader
 
 self_mod_bp = Blueprint("self_mod", __name__)
 
@@ -134,3 +135,41 @@ def search_code():
 
     results = CodeAnalyzer.search_code(query)
     return jsonify({"results": results})
+
+    from ai_core.self_mod.auto_upgrader import AutoUpgrader
+
+
+@self_mod_bp.route("/scan", methods=["GET"])
+def scan_system():
+    """Scan system for issues"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    payload = decode_token(token)
+    if not payload:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    result = AutoUpgrader.scan_system()
+    return jsonify(result)
+
+
+@self_mod_bp.route("/suggestions", methods=["GET"])
+def get_suggestions():
+    """Get AI improvement suggestions"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    payload = decode_token(token)
+    if not payload:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    result = AutoUpgrader.generate_suggestions()
+    return jsonify(result)
+
+
+@self_mod_bp.route("/quick-wins", methods=["GET"])
+def quick_wins():
+    """Get quick auto-implementable fixes"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    payload = decode_token(token)
+    if not payload:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    result = AutoUpgrader.get_quick_wins()
+    return jsonify(result)

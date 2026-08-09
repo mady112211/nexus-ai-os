@@ -275,4 +275,10 @@ export const selfModAPI = {
       method: 'POST',
       body: JSON.stringify({ query }),
     }),
+
+  scanSystem: () => apiCall('/api/self-mod/scan'),
+
+  getSuggestions: () => apiCall('/api/self-mod/suggestions'),
+
+  getQuickWins: () => apiCall('/api/self-mod/quick-wins'),
 };
