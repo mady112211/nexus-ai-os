@@ -262,3 +262,12 @@ export const imageAIAPI = {
       body: JSON.stringify({ prompt }),
     }),
 };
+export const brainAPI = {
+  process: (message: string) =>
+    apiCall('/api/brain/process', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
+
+  getCapabilities: () => apiCall('/api/brain/capabilities'),
+};

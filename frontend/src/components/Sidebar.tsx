@@ -20,6 +20,7 @@ const navItems = [
   { label: 'Builder', path: '/builder', icon: '🏗️' },
   { label: 'Settings', path: '/settings', icon: '⚙️' },
   { label: 'Image AI', path: '/image-studio', icon: '🎨' },
+  { label: 'Core Brain', path: '/brain', icon: '🧠' },
 ];
 
 export default function Sidebar() {

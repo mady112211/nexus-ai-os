@@ -23,6 +23,8 @@ from app.database import init_db
 from app.api.workspaces import workspaces_bp
 from app.api.self_mod import self_mod_bp
 from app.api.image_ai import image_ai_bp
+from app.api.core_brain import core_brain_bp
+
 
 def create_app():
     app = Flask(__name__)
@@ -45,7 +47,8 @@ def create_app():
     app.register_blueprint(workspaces_bp, url_prefix="/api/workspaces")
     app.register_blueprint(self_mod_bp, url_prefix="/api/self-mod")
     app.register_blueprint(image_ai_bp, url_prefix="/api/image-ai")
-    
+    app.register_blueprint(core_brain_bp, url_prefix="/api/brain")
+
     @app.route("/")
     def home():
         return jsonify({
